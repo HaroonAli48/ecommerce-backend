@@ -50,6 +50,7 @@ const listProducts = async(req,res)=>{
 
     try {
         
+
         const products = await productModel.find({});
         res.json({success:true,products})
 
@@ -57,6 +58,13 @@ const listProducts = async(req,res)=>{
         console.log(error);
         res.json({success:false,message:error.message})
     }
+}
+
+const updateStock =async(req,res)=>{
+
+    const {id,stock}=req.body
+
+    await productModel.findByIdAndUpdate(id,{stock});
 }
 
 const removeProduct = async(req,res)=>{
@@ -91,4 +99,4 @@ const singleProduct = async(req,res)=>{
 
 }
 
-export {addProduct,removeProduct,singleProduct,listProducts}
+export {addProduct,removeProduct,singleProduct,listProducts,updateStock}

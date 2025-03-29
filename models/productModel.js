@@ -9,7 +9,8 @@ const productSchema = new mongoose.Schema({
     bestseller: {type:Boolean},
     sizes: {type:Array, required:true},
     image: {type:Array, required:true},
-    date:{type:Number,required:true}
+    date:{type:Number,required:true},
+    stock:{type:Boolean,default:true}
 })
 const productModel = mongoose.models.product  || mongoose.model("product",productSchema);
 export default productModel;

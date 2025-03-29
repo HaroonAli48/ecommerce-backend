@@ -3,7 +3,7 @@ import userModel from "../models/userModel.js"
 import Stripe from 'stripe'
 
 const deliverCharge = 10
-const currency = 'usd'
+const currency = 'PKR'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
