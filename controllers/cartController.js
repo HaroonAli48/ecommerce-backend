@@ -4,6 +4,7 @@ const addToCart = async (req, res) => {
     try {
         const { userId, itemId, size} = req.body;
 
+        if(userId){
         const userData = await userModel.findById(userId);
         let cartData = userData.cartData || {};
 
@@ -23,6 +24,11 @@ const addToCart = async (req, res) => {
         await userModel.findByIdAndUpdate(userId, { cartData });
 
         res.status(200).json({ success: true, message: "Added to Cart" });
+    }
+    else{
+        res.status(500).json({ success: false, message: "Not signed in." });
+
+    }
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: error.message });
