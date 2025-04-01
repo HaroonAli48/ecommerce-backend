@@ -45,4 +45,4 @@ app.get('/',(req,res)=>{
     res.send("HMH STUDIO ON TOP")
 })
 
-app.listen(port,()=>console.log('HMH'+port))
+app.listen(port,'0.0.0.0',()=>console.log('HMH'+port))
