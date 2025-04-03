@@ -15,6 +15,7 @@ const authUser = async (req, res, next) => {
         req.body.userId = token_decode.id;
         const userName=await userModel.findById(req.body.userId,)
         req.username=userName.name
+        req.useremail=userName.email
         next()
     } catch (error) {
         console.log(error)
