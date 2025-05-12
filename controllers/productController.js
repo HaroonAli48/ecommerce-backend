@@ -55,13 +55,27 @@ const listProducts = async(req,res)=>{
         res.json({success:false,message:error.message})
     }
 }
-
-const updateStock =async(req,res)=>{
-
-    const {id,stock}=req.body
-
-    await productModel.findByIdAndUpdate(id,{stock});
-}
+const updateStock = async (req, res) => {
+    const { id, stock } = req.body;
+  
+    try {
+      const updatedProduct = await Product.findByIdAndUpdate(
+        id,
+        { stock },
+        { new: true }
+      );
+  
+      if (!updatedProduct) {
+        return res.status(404).json({ success: false, message: 'Product not found' });
+      }
+  
+      res.json({ success: true, product: updatedProduct });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+  
+  
 
 const removeProduct = async(req,res)=>{
 try {
