@@ -1,38 +1,33 @@
 import userModel from '../models/userModel.js';
-
 const addToCart = async (req, res) => {
-    try {
-        const { userId, itemId, size} = req.body;
+  try {
+    const { userId, itemId, size, colour } = req.body;
 
-        if(userId){
-        const userData = await userModel.findById(userId);
-        let cartData = userData.cartData || {};
+    if (userId) {
+      const userData = await userModel.findById(userId);
+      let cartData = userData.cartData || {};
 
-        // Check if itemId exists in cartData
-        if (cartData[itemId]) {
-            // Check if size exists for the item
-            if (cartData[itemId][size]) {
-                cartData[itemId][size] += 1;
-            } else {
-                cartData[itemId][size] = 1;
-            }
-           
-        } else {
-            cartData[itemId] = { [size]: 1 };
-        }
-        
-        await userModel.findByIdAndUpdate(userId, { cartData });
+      const key = `${size}-${colour}`;
 
-        res.status(200).json({ success: true, message: "Added to Cart" });
+      // Check if itemId exists in cartData
+      if (!cartData[itemId]) cartData[itemId] = {};
+
+      if (cartData[itemId][key]) {
+        cartData[itemId][key] += 1;
+      } else {
+        cartData[itemId][key] = 1;
+      }
+
+      await userModel.findByIdAndUpdate(userId, { cartData });
+
+      res.status(200).json({ success: true, message: "Added to Cart" });
+    } else {
+      res.status(401).json({ success: false, message: "Not signed in." });
     }
-    else{
-        res.status(500).json({ success: false, message: "Not signed in." });
-
-    }
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 // Review System

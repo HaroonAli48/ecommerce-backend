@@ -13,4 +13,5 @@ orderRouter.post('/razorpay',authUser,placeOrderRazorpay)
 orderRouter.post('/userorders',authUser,userOrders)
 orderRouter.post('/verifyStripe',authUser, verifyStripe)
 orderRouter.post('/online',authUser, placeOrderOnline)
-export default orderRouter
+
+export default orderRouter;

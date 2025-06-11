@@ -8,6 +8,7 @@ const productSchema = new mongoose.Schema({
     price: {type:Number, required:true},
     bestseller: {type:Boolean},
     sizes: {type:Array, required:true},
+    colours: {type:Array, required:true},
     image: {type:Array, required:true},
     date:{type:Number,required:true},
     stock:{type:Boolean,default:true}
