@@ -8,6 +8,7 @@ const addProduct = async (req, res) => {
       name,
       description,
       price,
+      discount,
       category,
       subCategory,
       sizes,
@@ -39,6 +40,7 @@ const addProduct = async (req, res) => {
       category,
       subCategory,
       price: Number(price),
+      discount: Number(discount) || 0,
       bestseller: bestseller === "true",
       sizes: JSON.parse(sizes),
       colours: JSON.parse(colours),
@@ -85,8 +87,6 @@ const addImage = async (req, res) => {
     res.status(500).json({ message: "Upload failed", error: err.message });
   }
 };
-
-// Add this in your controller file
 const updateProduct = async (req, res) => {
   try {
     const {
@@ -94,6 +94,7 @@ const updateProduct = async (req, res) => {
       name,
       description,
       price,
+      discount,
       category,
       subCategory,
       sizes,
@@ -112,15 +113,20 @@ const updateProduct = async (req, res) => {
 
     if (name !== undefined) updateFields.name = name;
     if (description !== undefined) updateFields.description = description;
-    if (price !== undefined) updateFields.price = Number(price);
+    if (price !== undefined)
+      updateFields.price = parseFloat(Number(price).toFixed(2));
+    if (discount !== undefined)
+      updateFields.discount = parseFloat(Number(discount).toFixed(2));
     if (category !== undefined) updateFields.category = category;
     if (subCategory !== undefined) updateFields.subCategory = subCategory;
-    if (sizes !== undefined)
+    if (sizes !== undefined) {
       updateFields.sizes =
         typeof sizes === "string" ? JSON.parse(sizes) : sizes;
-    if (colours !== undefined)
+    }
+    if (colours !== undefined) {
       updateFields.colours =
         typeof colours === "string" ? JSON.parse(colours) : colours;
+    }
     if (bestseller !== undefined)
       updateFields.bestseller = bestseller === "true" || bestseller === true;
     if (stock !== undefined) updateFields.stock = stock;
@@ -130,10 +136,12 @@ const updateProduct = async (req, res) => {
       updateFields,
       { new: true }
     );
+
     if (!updatedProduct) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product not found" }, updatedProduct);
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
     }
 
     res.json({
@@ -141,6 +149,12 @@ const updateProduct = async (req, res) => {
       message: "Product updated successfully",
       product: updatedProduct,
     });
+    console.log(
+      "Raw discount:",
+      discount,
+      "Parsed discount:",
+      Number(discount)
+    );
   } catch (error) {
     console.error("Update error:", error);
     res

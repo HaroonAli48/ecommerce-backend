@@ -9,6 +9,7 @@ import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import images from "./routes/images.js";
 import { initiatePayment } from "./controllers/orderController.js";
+import categoryRouter from "./routes/categoryRoute.js";
 
 // app config
 const app = express();
@@ -26,6 +27,7 @@ app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/images", images);
+app.use("/api/category", categoryRouter);
 
 import bodyParser from "body-parser";
 
