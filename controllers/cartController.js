@@ -65,7 +65,7 @@ const addReview = async (req, res) => {
 
 const getReviews = async (req, res) => {
   try {
-    const { itemId } = req.body; // Item ID to fetch reviews for
+    const { itemId } = req.body;
 
     if (!itemId) {
       return res
@@ -73,12 +73,10 @@ const getReviews = async (req, res) => {
         .json({ success: false, message: "Item ID is required" });
     }
 
-    // Find users who have reviewed this item
     const usersWithReviews = await userModel.find({
       [`reviewData.${itemId}`]: { $exists: true },
     });
 
-    // Extract reviews
     const reviews = usersWithReviews.map((user) => ({
       userName: user.name,
       review: user.reviewData[itemId],
@@ -91,7 +89,6 @@ const getReviews = async (req, res) => {
   }
 };
 
-// Backend route for updating the cart
 const updateCart = async (req, res) => {
   try {
     const { userId, itemId, size, quantity } = req.body;
@@ -100,22 +97,18 @@ const updateCart = async (req, res) => {
     let cartData = userData.cartData;
 
     if (quantity === 0) {
-      // Remove the specific size of the item
       delete cartData[itemId][size];
 
-      // If no more sizes for this item, remove the item itself
       if (Object.keys(cartData[itemId]).length === 0) {
         delete cartData[itemId];
       }
     } else {
-      // Update the quantity if it's not 0
       if (!cartData[itemId]) {
         cartData[itemId] = {};
       }
       cartData[itemId][size] = quantity;
     }
 
-    // Save the updated cart back to the database
     await userModel.findByIdAndUpdate(userId, { cartData });
 
     res

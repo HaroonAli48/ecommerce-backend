@@ -62,7 +62,18 @@ const addProduct = async (req, res) => {
 const addImage = async (req, res) => {
   try {
     const urls = await Promise.all(
-      ["pic1", "pic2", "pic3"].map(async (key) => {
+      [
+        "pic1",
+        "pic2",
+        "pic3",
+        "pic4",
+        "pic5",
+        "pic6",
+        "pic7",
+        "pic8",
+        "pic9",
+        "pic10",
+      ].map(async (key) => {
         if (req.files[key]) {
           const result = await cloudinary.uploader.upload(
             req.files[key][0].path,
@@ -78,6 +89,13 @@ const addImage = async (req, res) => {
       pic1: urls[0],
       pic2: urls[1],
       pic3: urls[2],
+      pic4: urls[3],
+      pic5: urls[4],
+      pic6: urls[5],
+      pic7: urls[6],
+      pic8: urls[7],
+      pic9: urls[8],
+      pic10: urls[9],
     });
 
     await newImage.save();
@@ -87,6 +105,7 @@ const addImage = async (req, res) => {
     res.status(500).json({ message: "Upload failed", error: err.message });
   }
 };
+
 const updateProduct = async (req, res) => {
   try {
     const {
@@ -149,12 +168,6 @@ const updateProduct = async (req, res) => {
       message: "Product updated successfully",
       product: updatedProduct,
     });
-    console.log(
-      "Raw discount:",
-      discount,
-      "Parsed discount:",
-      Number(discount)
-    );
   } catch (error) {
     console.error("Update error:", error);
     res
@@ -172,6 +185,13 @@ const getImages = async (req, res) => {
       pic1: image.pic1,
       pic2: image.pic2,
       pic3: image.pic3,
+      pic4: image.pic4,
+      pic5: image.pic5,
+      pic6: image.pic6,
+      pic7: image.pic7,
+      pic8: image.pic8,
+      pic9: image.pic9,
+      pic10: image.pic10,
       contentType: image.contentType,
     });
   } catch (err) {
