@@ -15,6 +15,7 @@ const productSchema = new mongoose.Schema({
   image: { type: Array, required: true },
   date: { type: Number, required: true },
   stock: { type: Boolean, default: true },
+  hotSeller: { type: Boolean, default: false },
 });
 
 const productModel =
