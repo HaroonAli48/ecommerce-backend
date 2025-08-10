@@ -121,6 +121,7 @@ const updateProduct = async (req, res) => {
       sizes,
       colours,
       bestseller,
+      hotSeller,
       stock,
     } = req.body;
 
@@ -150,6 +151,8 @@ const updateProduct = async (req, res) => {
     }
     if (bestseller !== undefined)
       updateFields.bestseller = bestseller === "true" || bestseller === true;
+    if (hotSeller !== undefined)
+      updateFields.hotSeller = hotSeller === "true" || hotSeller === true;
     if (stock !== undefined) updateFields.stock = stock;
 
     const updatedProduct = await productModel.findByIdAndUpdate(
