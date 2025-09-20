@@ -4,24 +4,20 @@ export const addCategory = async (req, res) => {
   try {
     const { name } = req.body;
 
-    // Validate input
     if (!name || typeof name !== "string") {
       return res.status(400).json({ message: "Invalid category name" });
     }
 
-    // Find the existing document
     const categoryDoc = await categoryModel.findOne();
 
     if (!categoryDoc) {
       return res.status(404).json({ message: "Category document not found" });
     }
 
-    // Prevent duplicates
     if (categoryDoc.category.includes(name)) {
       return res.status(400).json({ message: "Category already exists" });
     }
 
-    // Add the new category name
     categoryDoc.category.push(name);
     await categoryDoc.save();
 
@@ -53,25 +49,21 @@ export const deleteCategory = async (req, res) => {
   try {
     const { name } = req.params;
 
-    // Validate input
     if (!name || typeof name !== "string") {
       return res.status(400).json({ message: "Invalid category name" });
     }
 
-    // Find the existing document
     const categoryDoc = await categoryModel.findOne();
 
     if (!categoryDoc) {
       return res.status(404).json({ message: "Category document not found" });
     }
 
-    // Check if the category exists
     const index = categoryDoc.category.indexOf(name);
     if (index === -1) {
       return res.status(400).json({ message: "Category does not exist" });
     }
 
-    // Remove the category
     categoryDoc.category.splice(index, 1);
     await categoryDoc.save();
 
