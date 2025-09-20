@@ -57,6 +57,69 @@ orderRouter.post("/guest", async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 });
+
+orderRouter.post("/guestjazz", async (req, res) => {
+  try {
+    const { items, amount, address, paymentMethod = "Jazzcash" } = req.body;
+
+    const detailItems = items.map((item) => ({
+      productId: item._id || null,
+      name: item.name,
+      image: item.image,
+      size: item.size,
+      quantity: item.quantity,
+      price: item.price || 0,
+    }));
+
+    const orderData = {
+      items: detailItems,
+      address,
+      amount,
+      paymentMethod,
+      payment: false,
+      date: Date.now(),
+    };
+
+    const newOrder = new orderModel(orderData);
+    await newOrder.save();
+    res.json({ success: true, message: "Guest Order Placed", order: newOrder });
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: err.message });
+  }
+});
+
+orderRouter.post("/guesteasy", async (req, res) => {
+  try {
+    const { items, amount, address, paymentMethod = "Easypaisa" } = req.body;
+
+    const detailItems = items.map((item) => ({
+      productId: item._id || null,
+      name: item.name,
+      image: item.image,
+      size: item.size,
+      quantity: item.quantity,
+      price: item.price || 0,
+    }));
+
+    const orderData = {
+      items: detailItems,
+      address,
+      amount,
+      paymentMethod,
+      payment: false,
+      date: Date.now(),
+    };
+
+    const newOrder = new orderModel(orderData);
+    await newOrder.save();
+    res.json({ success: true, message: "Guest Order Placed", order: newOrder });
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: err.message });
+  }
+});
+
 orderRouter.post("/guestorders", async (req, res) => {
   try {
     const { phone } = req.body;
@@ -67,10 +130,9 @@ orderRouter.post("/guestorders", async (req, res) => {
         .json({ success: false, message: "Phone number is required" });
     }
 
-    // Find all guest orders with that phone
     const orders = await orderModel
       .find({ "address.phone": phone })
-      .sort({ date: -1 }); // newest first
+      .sort({ date: -1 });
 
     if (!orders || orders.length === 0) {
       return res.json({
