@@ -186,7 +186,7 @@ async function initiatePayment(amount, orderId, phoneNumber) {
     pp_TxnDateTime: date,
     pp_BillReference: "Test Payment",
     pp_Description: "E-commerce transaction",
-    pp_TxnExpiryDateTime: date, // Set expiry same as txn date
+    pp_TxnExpiryDateTime: date,
     pp_ReturnURL: jazzcashConfig.returnUrl,
     ppmpf_1: phoneNumber,
   };
@@ -204,6 +204,7 @@ async function initiatePayment(amount, orderId, phoneNumber) {
     return { success: false, message: error.message };
   }
 }
+
 
 export {
   verifyStripe,
