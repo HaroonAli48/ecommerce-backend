@@ -9,6 +9,7 @@ import {
   verifyStripe,
   placeOrderJazz,
   placeOrderEasy,
+  deleteOrder,
 } from "../controllers/orderController.js";
 import adminAuth from "../middleware/adminAuth.js";
 import authUser from "../middleware/auth.js";
@@ -148,5 +149,6 @@ orderRouter.post("/guestorders", async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+orderRouter.post("/delete", deleteOrder);
 
 export default orderRouter;

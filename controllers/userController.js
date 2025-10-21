@@ -2,7 +2,6 @@ import userModel from "../models/userModel.js";
 import validator from "validator";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-//Route for user login
 
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
@@ -12,14 +11,12 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if the user exists
     const user = await userModel.findOne({ email });
 
     if (!user) {
       return res.json({ success: false, message: "User does not exist" });
     }
 
-    // Check if the password matches
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (isMatch) {
@@ -34,16 +31,13 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Route for user Register
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    //checking user already exists or not
     const exists = await userModel.findOne({ email });
     if (exists) {
       return res.json({ success: false, message: "User exists already" });
     }
-    //validating email format and strong password
     if (!validator.isEmail(email)) {
       return res.json({
         success: false,
@@ -74,8 +68,6 @@ const registerUser = async (req, res) => {
   }
 };
 
-//Route for Admin login
-
 const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -83,10 +75,10 @@ const adminLogin = async (req, res) => {
     if (
       email === process.env.ADMIN_EMAIL &&
       password === process.env.ADMIN_PASSWORD
-    ) {
+    ) { 
       const token = jwt.sign(email + password, process.env.JWT_SECRET);
       res.json({ success: true, token });
-    } else {
+    } else { 
       res.json({ success: false, message: "Invalid credentials" });
     }
   } catch (error) {

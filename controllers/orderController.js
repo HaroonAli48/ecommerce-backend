@@ -106,6 +106,17 @@ const allOrders = async (req, res) => {
   }
 };
 
+const deleteOrder = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    await orderModel.findByIdAndDelete(orderId);
+    res.json({ success: true, message: "Order Deleted" });
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: err.message });
+  }
+};
+
 const userOrders = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -204,5 +215,6 @@ export {
   updateStatus,
   initiatePayment,
   placeOrderJazz,
+  deleteOrder,
   placeOrderEasy,
 };
