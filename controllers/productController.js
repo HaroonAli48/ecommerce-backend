@@ -1,4 +1,6 @@
-import { v2 as cloudinary } from "cloudinary";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { s3 } from "../config/r2.js";
+import { v4 as uuidv4 } from "uuid";
 import productModel from "../models/productModel.js";
 import ImageModel from "../models/ImageModel.js";
 
@@ -17,22 +19,34 @@ const addProduct = async (req, res) => {
       hotSeller,
     } = req.body;
 
-    const image1 = req.files.image1 && req.files.image1[0];
-    const image2 = req.files.image2 && req.files.image2[0];
-    const image3 = req.files.image3 && req.files.image3[0];
-    const image4 = req.files.image4 && req.files.image4[0];
+    const images = [
+      req.files.image1?.[0],
+      req.files.image2?.[0],
+      req.files.image3?.[0],
+      req.files.image4?.[0],
+    ].filter(Boolean);
 
-    const images = [image1, image2, image3, image4].filter(
-      (item) => item !== undefined
-    );
+    if (images.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No images uploaded" });
+    }
 
-    let imagesUrl = await Promise.all(
-      images.map(async (item) => {
-        let result = await cloudinary.uploader.upload(item.path, {
-          resource_type: "image",
-        });
-        return result.secure_url;
-      })
+    const imagesUrl = await Promise.all(
+      images.map(async (file) => {
+        const fileName = `products/${uuidv4()}_${file.originalname}`;
+
+        await s3.send(
+          new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET,
+            Key: fileName,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+          }),
+        );
+
+        return `${process.env.R2_PUBLIC_URL}/${fileName}`;
+      }),
     );
 
     const productData = {
@@ -51,10 +65,9 @@ const addProduct = async (req, res) => {
     };
 
     const product = new productModel(productData);
-
     await product.save();
 
-    res.json({ message: "product Added", success: true });
+    res.json({ message: "Product added", success: true });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -64,27 +77,22 @@ const addProduct = async (req, res) => {
 const addImage = async (req, res) => {
   try {
     const urls = await Promise.all(
-      [
-        "pic1",
-        "pic2",
-        "pic3",
-        "pic4",
-        "pic5",
-        "pic6",
-        "pic7",
-        "pic8",
-        "pic9",
-        "pic10",
-      ].map(async (key) => {
-        if (req.files[key]) {
-          const result = await cloudinary.uploader.upload(
-            req.files[key][0].path,
-            { resource_type: "image" }
-          );
-          return result.secure_url;
-        }
-        return null;
-      })
+      Array.from({ length: 10 }, (_, i) => `pic${i + 1}`).map(async (key) => {
+        if (!req.files[key]) return null;
+        const file = req.files[key][0];
+        const fileName = `images/${uuidv4()}_${file.originalname}`;
+
+        await s3.send(
+          new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET,
+            Key: fileName,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+          }),
+        );
+
+        return `${process.env.R2_PUBLIC_URL}/${fileName}`;
+      }),
     );
 
     const newImage = new ImageModel({
@@ -125,11 +133,10 @@ const updateProduct = async (req, res) => {
       stock,
     } = req.body;
 
-    if (!id) {
+    if (!id)
       return res
         .status(400)
         .json({ success: false, message: "Product ID is required" });
-    }
 
     const updateFields = {};
 
@@ -141,31 +148,57 @@ const updateProduct = async (req, res) => {
       updateFields.discount = parseFloat(Number(discount).toFixed(2));
     if (category !== undefined) updateFields.category = category;
     if (subCategory !== undefined) updateFields.subCategory = subCategory;
-    if (sizes !== undefined) {
+    if (sizes !== undefined)
       updateFields.sizes =
         typeof sizes === "string" ? JSON.parse(sizes) : sizes;
-    }
-    if (colours !== undefined) {
+    if (colours !== undefined)
       updateFields.colours =
         typeof colours === "string" ? JSON.parse(colours) : colours;
-    }
     if (bestseller !== undefined)
       updateFields.bestseller = bestseller === "true" || bestseller === true;
     if (hotSeller !== undefined)
       updateFields.hotSeller = hotSeller === "true" || hotSeller === true;
     if (stock !== undefined) updateFields.stock = stock;
 
+    const existingProduct = await productModel.findById(id);
+    let images = existingProduct.image || [];
+
+    for (let i = 0; i < 4; i++) {
+      const file = req.files?.[`image${i + 1}`]?.[0];
+
+      if (file) {
+        const key = `products/${uuidv4()}_${file.originalname}`;
+
+        try {
+          const command = new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET,
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+          });
+
+          await s3.send(command);
+
+          const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
+          images[i] = publicUrl;
+        } catch (err) {
+          console.error("R2 Upload Error:", err);
+        }
+      }
+    }
+
+    updateFields.image = images;
+
     const updatedProduct = await productModel.findByIdAndUpdate(
       id,
       updateFields,
-      { new: true }
+      { new: true },
     );
 
     if (!updatedProduct) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
 
     res.json({

@@ -1,12 +1,14 @@
 import express from "express";
 import { addImage, getImages } from "../controllers/productController.js";
-import upload from "../middleware/multer.js";
+import { upload1 } from "../middleware/upload.js";
+import adminAuth from "../middleware/adminAuth.js";
 
 const imagesRouter = express.Router();
 
 imagesRouter.post(
   "/upload",
-  upload.fields([
+  adminAuth,
+  upload1.fields([
     { name: "pic1", maxCount: 1 },
     { name: "pic2", maxCount: 1 },
     { name: "pic3", maxCount: 1 },
@@ -18,7 +20,7 @@ imagesRouter.post(
     { name: "pic9", maxCount: 1 },
     { name: "pic10", maxCount: 1 },
   ]),
-  addImage
+  addImage,
 );
 
 imagesRouter.get("/latest", getImages);
